@@ -8,7 +8,19 @@ namespace UniversalThriftClientConsoleApp
         {
             var client = new UniversalThriftClient("http://localhost:9090");
 
-            var result = await client.CallMethodAsync<User>("GetUser2", 2, "nigger");
+            var result1 = await client.CallMethodAsync<int>("GetUser3", 3, new User
+            {
+                ID = 4,
+                Name = "TestUser",
+                Faction = new Faction
+                {
+                    ID = 100,
+                    Name = "Red Team",
+                    Rank = "Captain"
+                }
+            });
+
+            var result2 = await client.CallMethodAsync<User>("GetUser2", 2, "test");
         }
     }
 

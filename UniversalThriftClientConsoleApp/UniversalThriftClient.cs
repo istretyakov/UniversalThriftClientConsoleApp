@@ -1,18 +1,18 @@
 ﻿using System.Collections;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Thrift;
 using Thrift.Protocol;
 using Thrift.Protocol.Entities;
-using Thrift.Transport;
 using Thrift.Transport.Client;
 
 namespace UniversalThriftClientConsoleApp;
 
 public class UniversalThriftClient
 {
-    private readonly TTransport _transport;
+    private readonly THttpTransport _transport;
     private readonly TBinaryProtocol _protocol;
 
     public UniversalThriftClient(string url)
@@ -22,11 +22,14 @@ public class UniversalThriftClient
             MaxMessageSize = int.MaxValue
         });
         _protocol = new TBinaryProtocol(_transport);
+        _transport.CreateHttpClientHandler();
     }
+
+    public HttpRequestHeaders RequestHeaders => _transport.RequestHeaders;
 
     public async Task<T> CallMethodAsync<T>(string methodName, params object[] args)
     {
-        await _transport.OpenAsync();
+        await _protocol.Transport.OpenAsync();
 
         await _protocol.WriteMessageBeginAsync(new TMessage(methodName, TMessageType.Call, 0), default);
 
