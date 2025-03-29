@@ -5,6 +5,9 @@
 ## Как это работает
 
 ### 1. **UniversalThriftClient**
+- **HTTP-заголовки**: 
+  - Доступ к заголовкам через `RequestHeaders`
+  - Поддержка добавления куков, токенов авторизации и других HTTP-заголовков
 - **Сериализация запросов**:
   - Преобразует параметры метода в Thrift-структуру
   - Поддерживает все базовые типы (int, string, bool и т.д.)
@@ -29,6 +32,11 @@
 ```csharp
 var client = new UniversalThriftClient("http://localhost:9090");
 
+client.RequestHeaders.Add("Cookie", "test=1");
+client.RequestHeaders.Add("Cookie", "auth=123");
+
+client.RequestHeaders.Add("X-Request-ID", "req_12345");
+
 var user = new User
 {
     ID = 1,
@@ -44,3 +52,31 @@ var user = new User
 // Вызов метода Thrift-сервиса
 var result = await client.CallMethodAsync<User>("GetUser", user);
 Console.WriteLine(JsonSerializer.Serialize(result));
+```
+
+### Пример объектов для десериализации
+```csharp
+public class User
+{
+    [JsonPropertyName("field_1")]
+    public int ID { get; set; }
+
+    [JsonPropertyName("field_2")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("field_3")]
+    public Faction Faction { get; set; }
+}
+
+public class Faction
+{
+    [JsonPropertyName("field_1")]
+    public int ID { get; set; }
+
+    [JsonPropertyName("field_2")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("field_3")]
+    public string Rank { get; set; }
+}
+```
